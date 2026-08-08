@@ -5,6 +5,10 @@ const chatSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  title: {
+    type: String,
+    default: 'New Chat'
+  },
   messages: [
     {
       sender: {
@@ -15,6 +19,9 @@ const chatSchema = new mongoose.Schema({
       text: {
         type: String,
         required: true
+      },
+      fileName: {
+        type: String
       },
       timestamp: {
         type: Date,

@@ -1,1 +1,33 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+@theme {
+  /* Font Families */
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* Custom Chat & Code Typography Classes */
+.text-chat-xs {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.text-chat-sm {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.text-chat-base {
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.text-code-base {
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.custom-code-font {
+  font-family: 'JetBrains Mono', monospace !important;
+}

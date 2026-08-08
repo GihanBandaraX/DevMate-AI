@@ -1,42 +1,34 @@
-//backend/src/controllers/authController.js
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-const User = require('../models/User');
-
-// Handle Google Login / Signup
 const googleAuth = async (req, res) => {
   try {
-    const { googleId, name, email, profilePic } = req.body;
-
-    // Check if user already exists in database
-    let user = await User.findOne({ email });
-
-    if (user) {
-      // If user exists, return success and user data
-      return res.status(200).json({ 
-        message: "Login successful", 
-        user 
-      });
-    }
-
-    // If user does not exist, create a new user
-    user = new User({
-      googleId,
-      name,
-      email,
-      profilePic
-    });
-
-    await user.save();
+    const { token } = req.body;
     
-    // Return success and new user data
-    res.status(201).json({ 
-      message: "User registered successfully", 
-      user 
+    // Verify the Google ID Token sent from frontend
+    const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID,
     });
+    
+    const payload = ticket.getPayload();
+    
+    const user = {
+      name: payload.name,
+      email: payload.email,
+      picture: payload.picture,
+    };
 
+    res.status(200).json({
+      message: "Authentication successful",
+      user: user
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error verifying Google token:', error);
+    res.status(401).json({ error: 'Authentication failed' });
   }
 };
 
-module.exports = { googleAuth };
+module.exports = {
+  googleAuth,
+};
