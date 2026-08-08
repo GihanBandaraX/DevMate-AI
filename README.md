@@ -27,3 +27,17 @@ DevMate AI is a smart, next-generation platform designed for developers and stud
 - **Express.js**
 - **Google Generative AI SDK:** v0.24.1
 - **MongoDB Atlas & Mongoose**
+
+- ## 📸 Screenshots
+
+### 1. Light Mode
+![Light Mode](./screenshots/Screenshot%20(1).png)
+
+### 2. Dark Mode
+![Dark Mode](./screenshots/Screenshot%20(2).png)
+
+### 3. Light Mode Chat Preview
+![Light Mode Chat Preview](./screenshots/Screenshot%20(3).png)
+
+### 4. Dark Mode Chat Preview
+![Dark Mode Chat Preview](./screenshots/Screenshot%20(4).png)
