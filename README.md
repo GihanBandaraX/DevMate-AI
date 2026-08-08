@@ -1,6 +1,6 @@
 # DevMate AI (AI-Powered Developer & Study Hub) 🚀
 
-**Developer:** Gihan Bandara  
+**Developer:** GihanBandaraX  
 **Start Date:** 2026-August-02  
 **Repository:** [DevMate-AI](https://github.com/GihanBandaraX/DevMate-AI)
 
@@ -9,13 +9,13 @@ DevMate AI is a smart, next-generation platform designed for developers and stud
 ---
 
 ## ✨ Core Features
-- **🔐 Google OAuth 2.0 Authentication:** Secure and seamless login experience via Google.
-- **🗄️ Robust Data Management:** Built with MongoDB Atlas and Node.js / Express REST APIs.
-- **🤖 Multi-Model AI Architecture:** Integrated support for leading LLMs including Google Gemini, OpenAI ChatGPT, Anthropic Claude, and xAI Grok.
-- **⚡ Smart AI Router:** Automatically routes queries based on complexity and cost-efficiency to the most suitable AI model.
-- **📊 Free Tier & Limit Management:** Tracks daily token usage and features automated fallback mechanisms if a model's free tier or rate limit is reached.
-- **🎛️ Manual Override (Model Selector):** Allows users to manually select their preferred AI model via a dynamic UI dropdown.
-- **☁️ Cloud Deployment:** Optimized for deployment via Vercel.
+- **🔐 Google OAuth 2.0 Authentication:** Secure and seamless login/logout experience via Google, with integrated user chat history management.
+- **🗄️ Robust Data Management:** Built with MongoDB Atlas and Node.js / Express REST APIs for fast and secure session storage.
+- **⚡ Quick Code Actions:** Pre-built instant tools for code processing: Add Comments, Debug, Explain, Optimize, Unit Tests, Security Scans, and API Documentation generation.
+- **🤖 Advanced Gemini AI Integration:** Powered by the official Google Gemini SDK (`gemini-3.5-flash`) with dynamic token usage tracking and console logging.
+- **🔄 Smart Model Fallback Routing:** Automatic failover mechanism that seamlessly switches from the primary model (`gemini-3.5-flash`) to the fallback model (`gemini-3.5-flash-lite`) when rate limits (429 Too Many Requests) are reached.
+- **📋 OpenAPI / Swagger Documentation:** Fully documented REST endpoints for managing chat histories, message processing, and AI actions.
+- **☁️ Cloud Deployment:** Optimized for deployment via Vercel and modern cloud platforms.
 
 ---
 
@@ -25,4 +25,5 @@ DevMate AI is a smart, next-generation platform designed for developers and stud
 - **Tailwind CSS**
 - **Node.js**
 - **Express.js**
-- **Google Generative AI SDK:** 0.24.1
+- **Google Generative AI SDK:** v0.24.1
+- **MongoDB Atlas & Mongoose**
