@@ -3,9 +3,12 @@ const Chat = require('../models/Chat');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Define your model routing tree
-const PRIMARY_MODEL = "gemini-3.5-flash";
-const FALLBACK_MODEL = "gemini-3.5-flash-lite";
+// Define primary and fallback models
+const PRIMARY_MODEL = "gemini-3.6-flash";
+const SECONDARY_FALLBACK = "gemini-3.5-flash";
+const COST_OR_SPEED_FALLBACK = "gemini-3.5-flash-lite";
+
+const MODEL_CHAIN = [PRIMARY_MODEL, SECONDARY_FALLBACK, COST_OR_SPEED_FALLBACK];
 
 const getUserChats = async (req, res) => {
   try {
@@ -24,7 +27,8 @@ const createChat = async (req, res) => {
     const newChat = new Chat({
       userId,
       title: 'New Chat',
-      messages: []
+      messages: [],
+      isPinned: false
     });
     await newChat.save();
     res.status(201).json(newChat);
@@ -36,7 +40,7 @@ const createChat = async (req, res) => {
 
 const handleChat = async (req, res) => {
   try {
-    const { userId, chatId, message, fileData, action } = req.body;
+    const { userId, chatId, message, fileData, action, modelPreference } = req.body;
 
     if (!message && !fileData) {
       return res.status(400).json({ error: "Message or file is required" });
@@ -51,77 +55,104 @@ const handleChat = async (req, res) => {
       chat = new Chat({
         userId: userId || 'guest',
         title: message ? message.substring(0, 30) + '...' : (fileData ? `File: ${fileData.name}` : 'New Chat'),
-        messages: []
+        messages: [],
+        isPinned: false
       });
     }
 
     let userMessageText = message || "";
-    let promptForAI = "";
     let displayFileName = null;
     let actionInstruction = "";
     
     if (action === 'add-comments') {
-      actionInstruction = `You are an expert developer. Add clear, professional comments to the following code. Return the commented code inside a markdown code block so the user can easily copy or download it.`;
+      actionInstruction = `You are an expert developer. Add clear, professional comments to the following code. Return the commented code inside a markdown code block.`;
     } 
     else if (action === 'debug') {
-      actionInstruction = `You are an expert debugger. Fix any bugs or issues in this code. In your chat response, clearly explain what was fixed and what changes were made, and provide the fully debugged and commented code inside a markdown block.`;
+      actionInstruction = `You are an expert debugger. Fix any bugs or issues in this code. Provide the fully debugged and commented code inside a markdown block.`;
     } 
     else if (action === 'explain') {
-      actionInstruction = `You are a code instructor. Explain the code segments, logic, and structure clearly and comprehensively in the chat response.`;
+      actionInstruction = `You are a code instructor. Explain the code segments, logic, and structure step-by-step clearly.`;
     } 
     else if (action === 'optimize') {
-      actionInstruction = `You are a performance optimization expert. Optimize this code by removing redundant or unwanted lines, improving efficiency, and cleaning up the structure. Explain the optimizations in the chat response and provide the optimized code.`;
+      actionInstruction = `You are a performance optimization expert. Optimize this code and provide the optimized code inside a markdown block.`;
     }
     else if (action === 'unit-test') {
-      actionInstruction = `You are an expert QA engineer. Generate comprehensive unit tests (using Jest, Mocha, PyTest, JUnit, etc.). Return the test code inside a markdown block so the user can easily copy or download it.`;
+      actionInstruction = `You are an expert QA engineer. Generate comprehensive unit tests for this code inside a markdown block.`;
     }
     else if (action === 'security-scan') {
-      actionInstruction = `You are a cybersecurity expert. Scan this code for security vulnerabilities (e.g., SQL Injection, XSS, Insecure Deserialization, Hardcoded API keys). List out security warnings and recommendations clearly in the chat response.`;
+      actionInstruction = `You are a cybersecurity expert. Scan this code for security vulnerabilities and list warnings.`;
     }
     else if (action === 'api-docs') {
-      actionInstruction = `You are an API documentation expert. Analyze the endpoints or functions in this code and generate professional documentation or Swagger/OpenAPI format inside a markdown block.`;
+      actionInstruction = `You are an API documentation expert. Generate professional documentation inside a markdown block.`;
     }
+
+    let contentsForAI = [];
+    let baseInstruction = actionInstruction || "Please analyze this input.";
 
     if (fileData) {
       displayFileName = fileData.name;
-      const fileExtension = fileData.name.split('.').pop();
-      const baseInstruction = actionInstruction || "Please analyze this file.";
-      promptForAI = `${baseInstruction}\n\nFile Name: ${fileData.name}\n\`\`\`${fileExtension}\n${fileData.data}\n\`\`\``;
-      if (!userMessageText) {
-        userMessageText = `Action: ${action || 'analyze'} on file: ${fileData.name}`;
+      const isImage = fileData.type && fileData.type.startsWith('image/');
+      const fileLabel = isImage ? `🖼️ Image: ${fileData.name}` : `📁 File: ${fileData.name}`;
+      userMessageText = message ? `${fileLabel}\n\n${message}` : fileLabel;
+
+      if (isImage) {
+        const base64Data = fileData.data.includes(',') ? fileData.data.split(',')[1] : fileData.data;
+        contentsForAI = [
+          `${baseInstruction}\n\nUser Prompt/Question: ${message || "Please read and extract code from this screenshot."}`,
+          {
+            inlineData: {
+              data: base64Data,
+              mimeType: fileData.type || "image/png"
+            }
+          }
+        ];
+      } else {
+        const fileExtension = fileData.name.split('.').pop();
+        const fileContentPrompt = `${baseInstruction}\n\nFile Name: ${fileData.name}\n\`\`\`${fileExtension}\n${fileData.data}\n\`\`\``;
+        contentsForAI = [fileContentPrompt];
       }
     } else {
-      promptForAI = actionInstruction ? `${actionInstruction}\n\n${message}` : message;
+      const textPrompt = actionInstruction ? `${actionInstruction}\n\n${message}` : message;
+      contentsForAI = [textPrompt];
     }
 
     let responseText = "";
     let modelUsed = PRIMARY_MODEL;
 
-    // --- AUTOMATED MODEL ROUTER LOGIC ---
-    try {
-      console.log(`[Router] Running primary model request: ${PRIMARY_MODEL}`);
-      const model = genAI.getGenerativeModel({ model: PRIMARY_MODEL });
-      const result = await model.generateContent(promptForAI);
-      responseText = result.response.text();
-    } catch (primaryError) {
-      // Check if primary error is due to hitting limits (429) or explicit quota strings
-      const isQuotaExceeded = primaryError.status === 429 || 
-                              (primaryError.message && primaryError.message.toLowerCase().includes("quota"));
+    // Dynamic Model Chain based on User Preference
+    let activeModelChain = [...MODEL_CHAIN];
+    if (modelPreference && activeModelChain.includes(modelPreference)) {
+      activeModelChain = [modelPreference, ...activeModelChain.filter(m => m !== modelPreference)];
+    }
 
-      if (isQuotaExceeded) {
-        console.warn(`[Router] ${PRIMARY_MODEL} limit reached. Switching seamlessly to ${FALLBACK_MODEL}...`);
-        modelUsed = FALLBACK_MODEL;
-        
-        // Execute the request using the fallback model
-        const fallbackModel = genAI.getGenerativeModel({ model: FALLBACK_MODEL });
-        const fallbackResult = await fallbackModel.generateContent(promptForAI);
-        responseText = fallbackResult.response.text();
-      } else {
-        // Throw any other unexpected engine errors up to the main catch block
-        throw primaryError;
+    // Send request through intelligent Fallback Chain (handling 429 / Quota errors)
+    for (let i = 0; i < activeModelChain.length; i++) {
+      const currentModel = activeModelChain[i];
+      try {
+        const model = genAI.getGenerativeModel({ model: currentModel });
+        const result = await model.generateContent(contentsForAI);
+        responseText = result.response.text();
+        modelUsed = currentModel;
+        break; // Exit loop if successful
+      } catch (error) {
+        const isRateLimitOrQuota = error.status === 429 || 
+                                   error.status === 503 ||
+                                   (error.message && (
+                                     error.message.toLowerCase().includes("quota") || 
+                                     error.message.toLowerCase().includes("429") || 
+                                     error.message.toLowerCase().includes("overloaded")
+                                   ));
+
+        if (isRateLimitOrQuota && i < activeModelChain.length - 1) {
+          console.warn(`[Model Fallback] ${currentModel} failed (429/Quota). Switching to next model: ${activeModelChain[i + 1]}`);
+          continue;
+        } else if (i === activeModelChain.length - 1) {
+          throw error; // Throw the final error if all models fail
+        } else {
+          throw error; // Stop immediately if it's another type of error
+        }
       }
     }
-    // --- END ROUTER LOGIC ---
 
     chat.messages.push({ 
       sender: 'user', 
@@ -138,7 +169,7 @@ const handleChat = async (req, res) => {
 
     res.status(200).json({
       reply: responseText,
-      modelUsed: modelUsed, // Appended to help frontend verify engine swaps
+      modelUsed: modelUsed,
       chat: chat
     });
   } catch (error) {
@@ -174,10 +205,30 @@ const renameChat = async (req, res) => {
   }
 };
 
+const togglePinChat = async (req, res) => {
+  try {
+    const { chatId } = req.params;
+    const chat = await Chat.findById(chatId);
+    
+    if (!chat) {
+      return res.status(404).json({ error: "Chat not found" });
+    }
+
+    chat.isPinned = !chat.isPinned;
+    await chat.save();
+
+    res.status(200).json(chat);
+  } catch (error) {
+    console.error("Toggle Pin Chat Error:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = { 
   getUserChats, 
   createChat, 
   handleChat, 
   deleteChat, 
-  renameChat 
+  renameChat,
+  togglePinChat 
 };

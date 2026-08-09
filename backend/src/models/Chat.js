@@ -1,3 +1,5 @@
+//backend/src/models/Chat.js
+
 const mongoose = require('mongoose');
 
 const chatSchema = new mongoose.Schema({
@@ -8,6 +10,10 @@ const chatSchema = new mongoose.Schema({
   title: {
     type: String,
     default: 'New Chat'
+  },
+  isPinned: {
+    type: Boolean,
+    default: false
   },
   messages: [
     {

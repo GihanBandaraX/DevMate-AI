@@ -7,7 +7,8 @@ const {
   createChat, 
   handleChat, 
   deleteChat, 
-  renameChat 
+  renameChat,
+  togglePinChat 
 } = require('../controllers/chatController');
 
 router.get('/chats/:userId', getUserChats);
@@ -15,5 +16,7 @@ router.post('/chat/new', createChat);
 router.post('/chat', handleChat);
 router.delete('/chat/:chatId', deleteChat);
 router.put('/chat/:chatId', renameChat);
+router.patch('/chat/:chatId/pin', togglePinChat); // pinning/unpinning a chat
+
 
 module.exports = router;
