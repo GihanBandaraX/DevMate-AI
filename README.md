@@ -9,26 +9,27 @@ DevMate AI is a smart, next-generation platform designed for developers and stud
 ---
 
 ## ✨ Core Features
-- **🔐 Google OAuth 2.0 Authentication:** Secure and seamless login/logout experience via Google, with integrated user chat history management.
-- **🗄️ Robust Data Management:** Built with MongoDB Atlas and Node.js / Express REST APIs for fast and secure session storage.
-- **⚡ Quick Code Actions:** Pre-built instant tools for code processing: Add Comments, Debug, Explain, Optimize, Unit Tests, Security Scans, and API Documentation generation.
-- **🤖 Advanced Gemini AI Integration:** Powered by the official Google Gemini SDK (`gemini-3.5-flash`) with dynamic token usage tracking and console logging.
-- **🔄 Smart Model Fallback Routing:** Automatic failover mechanism that seamlessly switches from the primary model (`gemini-3.5-flash`) to the fallback model (`gemini-3.5-flash-lite`) when rate limits (429 Too Many Requests) are reached.
-- **📋 OpenAPI / Swagger Documentation:** Fully documented REST endpoints for managing chat histories, message processing, and AI actions.
-- **☁️ Cloud Deployment:** Optimized for deployment via Vercel and modern cloud platforms.
+- **🤖 Advanced Multi-Model AI & Fallback Chain:** Powered by `gemini-3.6-flash` as the primary model, alongside `gemini-3.5-flash` and `gemini-3.5-flash-lite`, Features automatic failover and an active model selector dropdown in the header and input bar.
+- **⚡ Quick Code Actions:** Pre-built instant shortcuts for code processing: Debug Code, Optimize, Add Comments, Explain Code, Compare Code, Unit Test, Security Scan, and API Docs generation.
+- **📁 File Upload & Multi-Media Support:** Seamlessly upload code files (`.js`, `.html`, `.css`, `.py`, etc.) and images for detailed AI analysis.
+- **🎙️ Voice Input:** Built-in speech recognition support allowing users to speak their prompts directly into the chat input.
+- **💻 Live Code Preview & Management:** Interactive live preview tab for web languages (HTML, CSS, JavaScript), along with instant 📋 Copy and 📥 Download options for code blocks.
+- **🔄 Monaco Code Diff View:** Side-by-side code comparison view powered by Monaco Editor (`DiffEditor`) to analyze original and modified code changes.
+- **🗂️ Advanced Sidebar & Chat Management:** Features a collapsible sidebar with search functionality, pinned chats, recent chats list, and options to rename, pin, delete, or share conversations.
+- **🔐 Google OAuth & Theme Customization:** Secure Google authentication login/logout integration and smooth switching between Dark Mode and Light Mode.
 
 ---
 
 ## 🛠️ Tech Stack
-- **React:** v19.2
-- **Vite**
-- **Tailwind CSS**
-- **Node.js**
-- **Express.js**
-- **Google Generative AI SDK:** v0.24.1
-- **MongoDB Atlas & Mongoose**
+- **Frontend:** React v19.2, Vite v8.2, Tailwind CSS v4.3
+- **Backend:** Node.js v20.19.6, Express.js v5.2
+- **Database:** MongoDB Atlas & Mongoose v9.9
+- **AI Integration:** Google Generative AI SDK v0.24.1
+- **Core Libraries:** Monaco Editor for React v4.7, Google OAuth v0.13
 
-- ## 📸 Screenshots
+---
+
+## 📸 Screenshots
 
 ### 1. Light Mode
 ![Light Mode](./screenshots/Screenshot%20(1).png)
