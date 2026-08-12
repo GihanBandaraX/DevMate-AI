@@ -3,6 +3,8 @@
 **Developer:** GihanBandaraX  
 **Timeline:** August 02, 2026 - August 12, 2026  
 **Repository:** [DevMate-AI](https://github.com/GihanBandaraX/DevMate-AI)
+### 🚀 Live Demo
+[View Live App](https://dev-mate-ai-self.vercel.app/)
 
 DevMate AI is a smart, next-generation platform designed for developers and students to save code snippets, manage notes, and interact with an advanced multi-model AI chatbot directly within the app to solve programming and technical problems efficiently.
 
