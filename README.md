@@ -1,7 +1,7 @@
 # DevMate AI (AI-Powered Developer & Study Hub) 🚀
 
 **Developer:** GihanBandaraX  
-**Start Date:** 2026-August-02  
+**Timeline:** August 02, 2026 - August 12, 2026  
 **Repository:** [DevMate-AI](https://github.com/GihanBandaraX/DevMate-AI)
 
 DevMate AI is a smart, next-generation platform designed for developers and students to save code snippets, manage notes, and interact with an advanced multi-model AI chatbot directly within the app to solve programming and technical problems efficiently.
