@@ -33,7 +33,6 @@ const ChatHeader = ({ darkMode, activeModel = "gemini-3.6-flash" }) => {
             />
             <span className="hidden text-base font-michroma">✦</span>
           </div>
-          <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-black rounded-full shadow-sm animate-pulse"></span>
         </div>
         
         <div>
